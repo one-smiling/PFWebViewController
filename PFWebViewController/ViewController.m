@@ -27,7 +27,7 @@
 }
 
 - (IBAction)btnPressed:(UIButton *)sender {
-    PFWebViewController *webVC = [[PFWebViewController alloc] initWithURLString:@"http://3g.qq.com"];
+    PFWebViewController *webVC = [[PFWebViewController alloc] initWithURLString:@"http://blog.manbolo.com/2013/03/18/safari-reader-source-code"];
     [webVC setProgressBarColor:[UIColor redColor]]; // Default is black
     
     [self presentViewController:webVC animated:YES completion:nil];

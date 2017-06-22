@@ -13,6 +13,7 @@
 
 #define SCREENWIDTH [UIScreen mainScreen].bounds.size.width
 #define SCREENHEIGHT [UIScreen mainScreen].bounds.size.height
+#define NEW_JS 1
 
 @interface PFWebViewController () <PFWebViewToolBarDelegate,WKNavigationDelegate,WKScriptMessageHandler> {
     BOOL isNavigationBarHidden;
@@ -251,8 +252,15 @@
     NSURL *url = [bundle URLForResource:@"PFWebViewController" withExtension:@"bundle"];
     NSBundle *imageBundle = [NSBundle bundleWithURL:url];
     
+    
+    
     NSString *readerScriptFilePath = [imageBundle pathForResource:@"safari-reader" ofType:@"js"];
     NSString *readerCheckScriptFilePath = [imageBundle pathForResource:@"safari-reader-check" ofType:@"js"];
+    
+    if (NEW_JS) {
+        readerScriptFilePath = [imageBundle pathForResource:@"safari-reader-new" ofType:@"js"];
+        readerCheckScriptFilePath = [imageBundle pathForResource:@"safari-reader-check-new" ofType:@"js"];
+    }
     
     NSString *indexPageFilePath = [imageBundle pathForResource:@"index" ofType:@"html"];
     
@@ -307,9 +315,17 @@
 - (void)webViewToolbarDidSwitchReaderMode:(PFWebViewToolBar *)toolbar {
     isReaderMode = !isReaderMode;
     if (isReaderMode) {
+#if NEW_JS
         [_webView evaluateJavaScript:
-          @"var ReaderArticleFinderJS = new ReaderArticleFinder(document);"
-          "var article = ReaderArticleFinderJS.findArticle(); article.element.outerHTML" completionHandler:^(id _Nullable object, NSError * _Nullable error) {
+         @"var ReaderArticleFinderJS = new ReaderArticleFinder(document);"
+         "var article = ReaderArticleFinderJS.adoptableArticle(!0); article.outerHTML" completionHandler:^(id _Nullable object, NSError *
+                                                                                                            _Nullable error) {
+#else
+        [_webView evaluateJavaScript:
+         @"var ReaderArticleFinderJS = new ReaderArticleFinder(document);"
+         "var article = ReaderArticleFinderJS.findArticle(); article.element.outerHTML" completionHandler:^(id _Nullable object, NSError * _Nullable error) {
+
+#endif
             if ([object isKindOfClass:[NSString class]] && isReaderMode) {
                 [_webView evaluateJavaScript:@"ReaderArticleFinderJS.articleTitle()" completionHandler:^(id _Nullable object_in, NSError * _Nullable error) {
                     readerArticleTitle = object_in;
@@ -327,7 +343,7 @@
                     [_readerWebView loadHTMLString:mut_str baseURL:self.url];
                     _readerWebView.alpha = 0.0f;
 
-                    [_webView evaluateJavaScript:@"ReaderArticleFinderJS.prepareToTransitionToReader();" completionHandler:^(id _Nullable object, NSError * _Nullable error) {}];
+//                    [_webView evaluateJavaScript:@"ReaderArticleFinderJS.prepareToTransitionToReader();" completionHandler:^(id _Nullable object, NSError * _Nullable error) {}];
                 }];
             }
         }];
