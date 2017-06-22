@@ -99,7 +99,7 @@ function restoreInitialArticleScrollPosition() {
 }
 function restoreInitialArticleScrollPositionIfPossible() {
     if (!didRestoreInitialScrollPosition) {
-        if (!initialScrollPosition && (initialScrollPosition = ReaderJSController.initialArticleScrollPosition(), !initialScrollPosition || !initialScrollPosition.pageIndex))
+        if (!initialScrollPosition)
             return void (didRestoreInitialScrollPosition = !0);
         var e = document.getElementsByClassName("page-number").length;
         initialScrollPosition.pageIndex >= e || (setTimeout(restoreInitialArticleScrollPosition, DelayBeforeRestoringScrollPositionInMs), didRestoreInitialScrollPosition = !0)
@@ -156,7 +156,7 @@ function prepareTweetsInPrintingMailingFrame(e) {
     }
 }
 function localeForElement(e) {
-    var t = ReaderJSController.bestLocaleForString(e.textContent);
+    var t = document.createElement("a");
     return t && t.length && "und" !== t ? t : "en"
 }
 function anchorForURL(e) {
@@ -208,7 +208,7 @@ function nextPageContainer() {
     return document.getElementById("next-page-container")
 }
 function getLocalizedString(e) {
-    var t = localizedStrings[e];
+    var t = "";
     return t ? t : e
 }
 function nextPageLoadComplete() {
@@ -610,7 +610,7 @@ ReaderAppearanceController = function() {
     }, this._canLayOutContentBeyondMainTextColumn = !0, this._defaultFontFamilyName = "System", this._defaultThemeName = "White", this.configuration = {}, this._textSizeIndex = null, this._fontFamilyName = this._defaultFontFamilyName, this._themeName = this._defaultThemeName
 }, ReaderAppearanceController.prototype = {
     initialize: function() {
-        this.applyConfiguration(ReaderJSController.initialConfiguration()), /Macintosh/g.test(navigator.userAgent) ? document.body.classList.add("mac") : document.body.classList.add("ios")
+        this.applyConfiguration(), /Macintosh/g.test(navigator.userAgent) ? document.body.classList.add("mac") : document.body.classList.add("ios")
     },
     applyConfiguration: function(e) {
         var t = this._validConfigurationAndValidityFromUntrustedConfiguration(e),
@@ -648,7 +648,7 @@ ReaderAppearanceController = function() {
     _updateSavedConfiguration: function() {
         this.configuration.fontSizeIndexForSizeClass[this._readerSizeClassProducer()] = this._textSizeIndex, this.configuration.fontFamilyNameForLanguageTag[this._locale()] = this._fontFamilyName, this.configuration.themeName = this._themeName;
         var e = this.configuration;
-        e.version = ConfigurationVersion, ReaderJSController.didSetConfiguration(e)
+        e.version = ConfigurationVersion
     },
     applyAppropriateFontSize: function() {
         var e = this.configuration.fontSizeIndexForSizeClass[this._readerSizeClassProducer()];
@@ -836,18 +836,18 @@ ReaderController = function() {
         ReaderJSController.doneLoadingReaderPage()
     },
     loaded: function() {
-        if (this.readerOperationMode = ReaderJSController.readerOperationMode(), !ReaderJSController.originalArticleFinder() || this._shouldSkipActivationWhenPageLoads())
-            return void ReaderJSController.deactivateNow();
+        if (!ReaderArticleFinderJS || this._shouldSkipActivationWhenPageLoads())
+            return null;
         if (this.loadArticle(), ReaderAppearanceJS.initialize(), ReadingPositionStabilizerJS.initialize(), this._shouldRestoreScrollPositionFromOriginalPageAtActivation) {
-            var e = ReaderJSController.cachedTopScrollOffset();
+            var e = 0;
             if (e > 0)
                 document.body.scrollTop = e;
             else {
                 var t = document.getElementById("safari-reader-element-marker");
                 if (t) {
                     var n = parseFloat(t.style.top) / 100,
-                        i = t.parentElement,
-                        a = i.getBoundingClientRect();
+                    i = t.parentElement,
+                    a = i.getBoundingClientRect();
                     document.body.scrollTop = window.scrollY + a.top + a.height * n, i.removeChild(t)
                 }
             }
@@ -857,21 +857,23 @@ ReaderController = function() {
             this.setUserVisibleWidth(this.lastKnownUserVisibleWidth)
         }.bind(this);
         window.addEventListener("resize", o, !1);
-        var r = this._bestLocale,
-            s = function() {
-                ReaderJSController.contentIsReadyForDisplay(r)
-            };
-        this._deferSendingContentIsReadyForDisplay ? setTimeout(s, 0) : s()
+        
+        var article_node = document.getElementById("article");
+        article_node.firstChild.remove();
+        
+        var message = { 'code' : 0 };
+        window.webkit.messageHandlers.JSController.postMessage(message);
     },
     setUserVisibleWidth: function(e) {
         var t = ReaderAppearanceJS.documentElementWidth();
         e === this.lastKnownUserVisibleWidth && t === this.lastKnownDocumentElementWidth || (this.lastKnownUserVisibleWidth = e, this.lastKnownDocumentElementWidth = t, ReaderAppearanceJS.applyAppropriateFontSize(), ReaderAppearanceJS.layOutContent())
     },
     loadArticle: function() {
-        var e = ReaderJSController.originalArticleFinder();
+        var e = ReaderArticleFinderJS;
+        e.adoptableArticle();
         if (e.article || e.articleNode(!0), !e.article)
             return this.setOriginalURL(e.contentDocument.baseURI), void this.doneLoadingAllPages();
-        this.routeToArticle = e.routeToArticleNode(), this.displayTitle = e.articleTitle(), this.displaySubhead = e.articleSubhead(), this.metadataElement = e.adoptableMetadataBlock(), this.articleIsLTR = e.articleIsLTR();
+        this.routeToArticle = e.routeToArticleNode(), this.displayTitle = e.articleTitle(), this.displaySubhead = "", this.articleIsLTR = e.articleIsLTR();
         var t = e.adoptableArticle().ownerDocument;
         if (document.title = t.title, this.setOriginalURL(t.baseURI), this.readerOperationMode == ReaderOperationMode.ArchiveViewing)
             return void ReaderAppearanceJS.layOutContent();
@@ -884,8 +886,9 @@ ReaderController = function() {
                 a[r].remove();
             this.stopLoadingNextPage()
         }
-        this.updateLocaleFromElement(n), this.createPageFromNode(n), i || (e.adoptableMultiPageContentElements().forEach(this.createPageFromNode, this), updatePageNumbers()), this.isLoadingNextPage() || this.doneLoadingAllPages()
+        this.updateLocaleFromElement(n), this.createPageFromNode(n), i
     },
+
     loadNewArticle: function() {
         if (!ReaderJSController.originalArticleFinder())
             return void ReaderJSController.deactivateNow();
