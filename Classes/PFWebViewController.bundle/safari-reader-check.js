@@ -1786,7 +1786,7 @@ cleanArticleNode: function(e, t, n, i) {
             }
             ke && (Y = We, T = ke, b = We, b.originalElement = T, X = b.tagName), Ue = null, He = null, ke = null, We = null
         }
-        !Y || Y.parentElement || i || (Y = null);
+//        !Y || Y.parentElement || i || (Y = null);
         var ze = Y ? null : T.firstElementChild;
         if (ze)
             T = ze, b = b.firstElementChild, r(1);
