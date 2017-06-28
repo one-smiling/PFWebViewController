@@ -243,7 +243,7 @@
 					};
 					9287717F1D8FDAF400491C20 = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = Q8H99663FH;
+						DevelopmentTeam = 4MHSCHNBLD;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -483,7 +483,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = Q8H99663FH;
+				DEVELOPMENT_TEAM = 4MHSCHNBLD;
 				INFOPLIST_FILE = PFWebViewController/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -497,7 +497,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = Q8H99663FH;
+				DEVELOPMENT_TEAM = 4MHSCHNBLD;
 				INFOPLIST_FILE = PFWebViewController/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

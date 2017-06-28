@@ -16,20 +16,19 @@ function smoothScroll(e, t, n, i) {
     var r = e.scrollTop,
     s = r + t,
     l = 0,
-    d = articleHeight() - window.innerHeight;
-    if (l > s && (s = l), s > d && (s = d), r != s) {
-        var c = Math.abs(s - r);
-        if (c < Math.abs(t) && (n = n * c / Math.abs(t)), smoothScrollingAnimator) {
-            var u = smoothScrollingAnimator.animations[0],
-            m = u.progress,
-            g = m > .5 ? 1 - m : m,
+    m = articleHeight() - window.innerHeight;
+    if (l > s && (s = l), s > m && (s = m), r != s) {
+        var d = Math.abs(s - r);
+        if (d < Math.abs(t) && (n = n * d / Math.abs(t)), smoothScrollingAnimator) {
+            var c = smoothScrollingAnimator.animations[0],
+            u = c.progress,
+            g = u > .5 ? 1 - u : u,
             h = n / (1 - g),
             p = -g * h,
-            f = s - r,
-            S = (.5 * f * Math.PI * Math.sin(Math.PI * m), Math.sin(Math.PI / 2 * g)),
-            C = S * S,
-            x = (r - s * C) / (1 - C);
-            return abortSmoothScroll(), smoothScrollingAnimator = new AppleAnimator(h, o, i), smoothScrollingAnimation = new AppleAnimation(x, s, a), smoothScrollingAnimator.addAnimation(smoothScrollingAnimation), void smoothScrollingAnimator.start(p)
+            f = Math.sin(Math.PI / 2 * g),
+            S = f * f,
+            C = (r - s * S) / (1 - S);
+            return abortSmoothScroll(), smoothScrollingAnimator = new AppleAnimator(h, o, i), smoothScrollingAnimation = new AppleAnimation(C, s, a), smoothScrollingAnimator.addAnimation(smoothScrollingAnimation), void smoothScrollingAnimator.start(p)
         }
         smoothScrollingAnimator = new AppleAnimator(n, o, i), smoothScrollingAnimation = new AppleAnimation(r, s, a), smoothScrollingAnimator.addAnimation(smoothScrollingAnimation), smoothScrollingAnimator.start()
     }
@@ -38,7 +37,7 @@ function abortSmoothScroll() {
     smoothScrollingAnimator.stop(AnimationTerminationCondition.Interrupted), smoothScrollingAnimator = null, smoothScrollingAnimation = null
 }
 function articleScrolled() {
-    !scrollEventIsSmoothScroll && smoothScrollingAnimator && abortSmoothScroll()
+    !scrollEventIsSmoothScroll && smoothScrollingAnimator && abortSmoothScroll(), ReaderJSController.articleScrolled()
 }
 function traverseReaderContent(e, t) {
     if (e) {
@@ -66,6 +65,7 @@ function keyDown(e) {
     n = !e.metaKey && !e.altKey && !e.ctrlKey && e.shiftKey;
     switch (e.keyCode) {
         case 8:
+            n ? ReaderJSController.goForward() : t && ReaderJSController.goBack(), e.preventDefault();
             break;
         case 74:
             ContentAwareScrollerJS.scroll(ContentAwareNavigationDirection.Down);
@@ -109,9 +109,210 @@ function makeWideElementsScrollable() {
         var i = e[n];
         if (!i.classList.contains("float") && !i.parentElement.classList.contains("scrollable")) {
             var a = document.createElement("div");
-            i.parentElement.insertBefore(a, i), i.remove(), a.insertBefore(i), a.classList.add("scrollable")
+            i.parentElement.insertBefore(a, i), i.remove(), a.appendChild(i), a.classList.add("scrollable")
         }
     }
+}
+function fontSettings(e) {
+    const t = [15, 16, 17, 18, 19, 20, 21, 23, 26, 28, 37, 46],
+    n = ["25px", "26px", "27px", "28px", "29px", "30px", "31px", "33px", "37px", "39px", "51px", "62px"],
+    i = {
+    System: {
+    lineHeights: ["25px", "26px", "27px", "29px", "30px", "31px", "32px", "33px", "38px", "39px", "51px", "62px"],
+    cssClassName: "system"
+    },
+    Athelas: {
+    cssClassName: "athelas"
+    },
+    Charter: {
+    lineHeights: ["25px", "26px", "27px", "28px", "29px", "30px", "32px", "34px", "38px", "39px", "51px", "62px"],
+    cssClassName: "charter"
+    },
+    Georgia: {
+    lineHeights: ["25px", "26px", "27px", "28px", "29px", "30px", "32px", "34px", "38px", "41px", "51px", "62px"],
+    cssClassName: "georgia"
+    },
+        "Iowan Old Style": {
+        lineHeights: ["25px", "26px", "27px", "28px", "29px", "30px", "32px", "34px", "38px", "39px", "51px", "62px"],
+        cssClassName: "iowan"
+        },
+    Palatino: {
+    lineHeights: ["25px", "26px", "27px", "28px", "29px", "30px", "31px", "34px", "37px", "40px", "51px", "62px"],
+    cssClassName: "palatino"
+    },
+    Seravek: {
+    lineHeights: ["25px", "26px", "27px", "28px", "28px", "30px", "31px", "34px", "37px", "39px", "51px", "62px"],
+    cssClassName: "seravek"
+    },
+        "Times New Roman": {
+        cssClassName: "times"
+        },
+        "Hiragino Sans W3": {
+        cssClassName: "hiraginosans",
+        lineHeights: ["1.85em", "1.78em", "1.74em", "1.71em", "1.72em", "1.73em", "1.75em", "1.76em", "1.78em", "1.9em", "1.92em", "2em"]
+        },
+        "Hiragino Kaku Gothic ProN": {
+        cssClassName: "hiraginokaku",
+        lineHeights: ["1.85em", "1.78em", "1.74em", "1.7em", "1.69em", "1.68em", "1.69em", "1.7em", "1.74em", "1.85em", "1.9em", "2em"]
+        },
+        "Hiragino Mincho ProN": {
+        cssClassName: "hiraginomincho",
+        lineHeights: ["1.75em", "1.72em", "1.69em", "1.66em", "1.64em", "1.56em", "1.53em", "1.56em", "1.6em", "1.65em", "1.69em", "1.72em"]
+        },
+        "Hiragino Maru Gothic ProN": {
+        cssClassName: "hiraginomaru",
+        lineHeights: ["1.85em", "1.78em", "1.74em", "1.7em", "1.69em", "1.68em", "1.69em", "1.7em", "1.74em", "1.85em", "1.9em", "2em"]
+        },
+        "PingFang SC": {
+        lineHeights: ["1.85em", "1.78em", "1.74em", "1.7em", "1.69em", "1.68em", "1.69em", "1.7em", "1.74em", "1.85em", "1.9em", "2em"],
+        cssClassName: "pingfangsc"
+        },
+        "Heiti SC": {
+        lineHeights: ["1.85em", "1.78em", "1.74em", "1.7em", "1.7em", "1.71em", "1.72em", "1.75em", "1.8em", "1.9em", "1.95em", "2em"],
+        cssClassName: "heitisc"
+        },
+        "Songti SC": {
+        lineHeights: ["1.8em", "1.78em", "1.74em", "1.72em", "1.71em", "1.72em", "1.73em", "1.75em", "1.8em", "1.9em", "1.95em", "1.96em"],
+        cssClassName: "songtisc"
+        },
+        "Kaiti SC": {
+        lineHeights: ["1.75em", "1.72em", "1.69em", "1.66em", "1.64em", "1.56em", "1.53em", "1.56em", "1.6em", "1.65em", "1.69em", "1.72em"],
+        cssClassName: "kaitisc"
+        },
+        "Yuanti SC": {
+        lineHeights: ["1.95em", "1.93em", "1.9em", "1.87em", "1.85em", "1.8em", "1.83em", "1.85em", "1.88em", "1.9em", "1.91em", "1.92em"],
+        cssClassName: "yuantisc"
+        },
+        "Libian SC": {
+        fontSizes: [27, 28, 29, 30, 31, 32, 33, 35, 37, 40, 42, 46],
+        lineHeights: ["1.65em", "1.63em", "1.62em", "1.61em", "1.6em", "1.6em", "1.61em", "1.62em", "1.63em", "1.64em", "1.64em", "1.65em"],
+        cssClassName: "libiansc"
+        },
+        "Weibei SC": {
+        fontSizes: [21, 22, 23, 24, 25, 26, 27, 29, 32, 34, 39, 43],
+        lineHeights: ["1.65em", "1.63em", "1.62em", "1.61em", "1.6em", "1.6em", "1.61em", "1.62em", "1.63em", "1.64em", "1.64em", "1.65em"],
+        cssClassName: "weibeisc"
+        },
+        "Yuppy SC": {
+        lineHeights: ["1.75em", "1.73em", "1.7em", "1.67em", "1.65em", "1.6em", "1.63em", "1.65em", "1.68em", "1.7em", "1.71em", "1.72em"],
+        cssClassName: "yuppysc"
+        },
+        "PingFang TC": {
+        lineHeights: ["1.85em", "1.78em", "1.75em", "1.72em", "1.7em", "1.7em", "1.7em", "1.72em", "1.75em", "1.82em", "1.85em", "1.9em"],
+        cssClassName: "pingfangtc"
+        },
+        "Heiti TC": {
+        lineHeights: ["1.85em", "1.78em", "1.75em", "1.72em", "1.71em", "1.71em", "1.72em", "1.75em", "1.78em", "1.82em", "1.86em", "1.9em"],
+        cssClassName: "heititc"
+        },
+        "Songti TC": {
+        lineHeights: ["1.8em", "1.78em", "1.74em", "1.73em", "1.72em", "1.72em", "1.73em", "1.75em", "1.8em", "1.9em", "1.95em", "1.96em"],
+        cssClassName: "songtitc"
+        },
+        "Kaiti TC": {
+        fontSizes: [20, 21, 22, 23, 24, 25, 26, 28, 31, 33, 38, 43],
+        lineHeights: ["1.63em", "1.62em", "1.62em", "1.6em", "1.56em", "1.53em", "1.5em", "1.53em", "1.56em", "1.6em", "1.62em", "1.63em"],
+        cssClassName: "kaititc"
+        },
+        "Yuanti TC": {
+        lineHeights: ["1.95em", "1.93em", "1.9em", "1.87em", "1.85em", "1.8em", "1.83em", "1.85em", "1.88em", "1.9em", "1.91em", "1.92em"],
+        cssClassName: "yuantitc"
+        },
+        "Libian TC": {
+        fontSizes: [27, 28, 29, 30, 31, 32, 33, 35, 37, 40, 42, 46],
+        lineHeights: ["1.65em", "1.63em", "1.62em", "1.61em", "1.6em", "1.6em", "1.61em", "1.62em", "1.63em", "1.64em", "1.64em", "1.65em"],
+        cssClassName: "libiantc"
+        },
+        "Weibei TC": {
+        fontSizes: [21, 22, 23, 24, 25, 26, 27, 29, 32, 34, 39, 43],
+        lineHeights: ["1.65em", "1.63em", "1.62em", "1.61em", "1.6em", "1.6em", "1.61em", "1.62em", "1.63em", "1.64em", "1.64em", "1.65em"],
+        cssClassName: "weibeitc"
+        },
+        "Yuppy TC": {
+        lineHeights: ["1.75em", "1.73em", "1.7em", "1.67em", "1.65em", "1.6em", "1.63em", "1.65em", "1.68em", "1.7em", "1.71em", "1.72em"],
+        cssClassName: "yuppytc"
+        },
+        "Apple SD Gothic Neo": {
+        cssClassName: "applesdgothicneo"
+        },
+        "Nanum Gothic": {
+        cssClassName: "nanumgothic"
+        },
+        "Nanum Myeongjo": {
+        cssClassName: "nanummyeongjo"
+        },
+        "Khmer Sangam MN": {
+        cssClassName: "khmersangammn"
+        },
+        "Lao Sangam MN": {
+        cssClassName: "laosangam"
+        },
+    Thonburi: {
+    cssClassName: "thonburi"
+    },
+    Damascus: {
+    cssClassName: "damascus"
+    },
+    Kefa: {
+    cssClassName: "kefa"
+    },
+        "Arial Hebrew": {
+        cssClassName: "arialhebrew"
+        },
+    Mshtakan: {
+    cssClassName: "mshtakan"
+    },
+        "Plantagenet Cherokee": {
+        cssClassName: "plantagenetcherokee"
+        },
+        "Euphemia UCAS": {
+        cssClassName: "euphemiaucas"
+        },
+        "Kohinoor Bangla": {
+        cssClassName: "kohinoorbangla"
+        },
+        "Bangla Sangam MN": {
+        cssClassName: "banglasangammn"
+        },
+        "Gujarati Sangam MN": {
+        cssClassName: "gujarati"
+        },
+        "Gurmukhi MN": {
+        cssClassName: "gurmukhi"
+        },
+        "Kohinoor Devanagari": {
+        cssClassName: "kohinoordevanagari"
+        },
+        "ITF Devanagari": {
+        cssClassName: "itfdevanagari"
+        },
+        "Kannada Sangam MN": {
+        cssClassName: "kannada"
+        },
+        "Malayalam Sangam MN": {
+        cssClassName: "malayalam"
+        },
+        "Oriya Sangam MN": {
+        cssClassName: "oriya"
+        },
+        "Sinhala Sangam MN": {
+        cssClassName: "sinhala"
+        },
+    InaiMathi: {
+    cssClassName: "inaimathi"
+    },
+        "Tamil Sangam MN": {
+        cssClassName: "tamil"
+        },
+        "Kohinoor Telugu": {
+        cssClassName: "Kohinoor Telugu"
+        },
+        "Telugu Sangam MN": {
+        cssClassName: "telugu"
+        }
+    };
+    var a = i[e];
+    return a ? (a.fontSizes || (a.fontSizes = t), a.lineHeights || (a.lineHeights = n), a) : a
 }
 function loadTwitterJavaScript() {
     window.twttr = function(e, t, n) {
@@ -155,8 +356,8 @@ function prepareTweetsInPrintingMailingFrame(e) {
     }
 }
 function localeForElement(e) {
-    var t = "en"
-    return "en" && t.length && "und" !== t ? t : "en"
+    var t = document.createElement("a");
+    return t && t.length && "und" !== t ? t : "en"
 }
 function anchorForURL(e) {
     var t = document.createElement("a");
@@ -182,7 +383,7 @@ function monitorMouseDownForPotentialDeactivation(e) {
     lastMouseDownWasOutsideOfPaper = e && ReaderAppearanceJS.usesPaperAppearance() && !document.getElementById("article").contains(e.target)
 }
 function deactivateIfEventIsOutsideOfPaperContainer(e) {
-    lastMouseDownWasOutsideOfPaper && e && ReaderAppearanceJS.usesPaperAppearance() && !document.getElementById("article").contains(e.target) && (ReaderJS.readerWillEnterBackground())
+    lastMouseDownWasOutsideOfPaper && e && ReaderAppearanceJS.usesPaperAppearance() && !document.getElementById("article").contains(e.target) && ReaderJSController.requestDeactivationFromUserAction()
 }
 function updatePageNumbers() {
     for (var e = document.getElementsByClassName("page-number"), t = e.length, n = ReaderJS.isLoadingNextPage(), i = 0; t > i; ++i)
@@ -211,7 +412,15 @@ function getLocalizedString(e) {
     return t ? t : e
 }
 function nextPageLoadComplete() {
-    return null
+    if (nextPageContainer().removeEventListener("load", nextPageLoadComplete, !1), ReaderJS.pageNumber++, ReaderJS.readerOperationMode == ReaderOperationMode.OffscreenFetching) {
+        var e = ReaderJS.pageURLs[ReaderJS.pageURLs.length - 1];
+        ReaderJSController.nextPageLoadComplete(ReaderJS.pageNumber, e, "next-page-container")
+    }
+    ReaderJSController.prepareNextPageFrame("next-page-container");
+    var t = ReaderJSController.nextPageArticleFinder();
+    t.pageNumber = ReaderJS.pageNumber, t.suggestedRouteToArticle = ReaderJS.routeToArticle, t.previouslyDiscoveredPageURLStrings = ReaderJS.pageURLs;
+    var n = t.adoptableArticle();
+    n && (ReaderJS.createPageFromNode(n), ReaderJS.routeToArticle = t.routeToArticleNode()), nextPageContainer().removeAttribute("src"), ReaderJSController.clearNextPageArticleFinder(), ReaderJS.canLoadNextPage() ? ReaderJS.setNextPageURL(t.nextPageURL()) : ReaderJS.setCachedNextPageURL(t.nextPageURL()), updatePageNumbers(), restoreInitialArticleScrollPositionIfPossible(), ReaderJS.isLoadingNextPage() || ReaderJS.doneLoadingAllPages()
 }
 function contentElementTouchingTopOfViewport() {
     var e = articleTitleElement();
@@ -253,8 +462,8 @@ AppleAnimator = function(e, t, n) {
         n = (new Date).getTime(),
         r = i.duration;
         t = e(n - i.startTime, 0, r), n = t / r, a = .5 - .5 * Math.cos(Math.PI * n), o = t >= r;
-        for (var s = i.animations, l = s.length, d = i._firstTime, c = 0; l > c; ++c)
-            s[c].doFrame(i, a, d, o, n);
+        for (var s = i.animations, l = s.length, m = i._firstTime, d = 0; l > d; ++d)
+            s[d].doFrame(i, a, m, o, n);
         return o ? void i.stop(AnimationTerminationCondition.CompletedSuccessfully) : (i._firstTime = !1, void (this.currentFrameRequestID = requestAnimationFrame(i.animate)))
     }
 }, AppleAnimator.prototype = {
@@ -325,246 +534,7 @@ scroll: function(e) {
 }, window.addEventListener("keydown", keyDown, !1);
 var didRestoreInitialScrollPosition = !1,
 initialScrollPosition;
-const DefaultFontSizes = [15, 16, 17, 18, 19, 20, 21, 23, 26, 28, 37, 46],
-DefaultLineHeights = ["25px", "26px", "27px", "28px", "29px", "30px", "31px", "33px", "37px", "39px", "51px", "62px"],
-FontSettings = {
-System: {
-fontSizes: DefaultFontSizes,
-lineHeights: ["25px", "26px", "27px", "29px", "30px", "31px", "32px", "33px", "38px", "39px", "51px", "62px"],
-cssClassName: "system"
-},
-Athelas: {
-fontSizes: DefaultFontSizes,
-lineHeights: DefaultLineHeights,
-cssClassName: "athelas"
-},
-Charter: {
-fontSizes: DefaultFontSizes,
-lineHeights: ["25px", "26px", "27px", "28px", "29px", "30px", "32px", "34px", "38px", "39px", "51px", "62px"],
-cssClassName: "charter"
-},
-Georgia: {
-fontSizes: DefaultFontSizes,
-lineHeights: ["25px", "26px", "27px", "28px", "29px", "30px", "32px", "34px", "38px", "41px", "51px", "62px"],
-cssClassName: "georgia"
-},
-    "Iowan Old Style": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: ["25px", "26px", "27px", "28px", "29px", "30px", "32px", "34px", "38px", "39px", "51px", "62px"],
-    cssClassName: "iowan"
-    },
-Palatino: {
-fontSizes: DefaultFontSizes,
-lineHeights: ["25px", "26px", "27px", "28px", "29px", "30px", "31px", "34px", "37px", "40px", "51px", "62px"],
-cssClassName: "palatino"
-},
-Seravek: {
-fontSizes: DefaultFontSizes,
-lineHeights: ["25px", "26px", "27px", "28px", "28px", "30px", "31px", "34px", "37px", "39px", "51px", "62px"],
-cssClassName: "seravek"
-},
-    "Times New Roman": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "times"
-    },
-    "Hiragino Sans W3": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "hiraginosans"
-    },
-    "Hiragino Kaku Gothic ProN": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "hiraginokaku"
-    },
-    "Hiragino Mincho ProN": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "hiraginomincho"
-    },
-    "Hiragino Maru Gothic ProN": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "hiraginomaru"
-    },
-    "PingFang SC": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "pingfangsc"
-    },
-    "Heiti SC": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "heitisc"
-    },
-    "Songti SC": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "songtisc"
-    },
-    "Kaiti SC": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "kaitisc"
-    },
-    "Yuanti SC": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "yuantisc"
-    },
-    "PingFang TC": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "pingfangtc"
-    },
-    "Heiti TC": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "heititc"
-    },
-    "Songti TC": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "songtitc"
-    },
-    "Kaiti TC": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "kaititc"
-    },
-    "Yuanti TC": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "yuantitc"
-    },
-    "Apple SD Gothic Neo": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "applesdgothicneo"
-    },
-NanumMyeongjo: {
-fontSizes: DefaultFontSizes,
-lineHeights: DefaultLineHeights,
-cssClassName: "nanummyeongjo"
-},
-    "Khmer Sangam MN": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "khmersangammn"
-    },
-    "Lao Sangam MN": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "laosangam"
-    },
-Thonburi: {
-fontSizes: DefaultFontSizes,
-lineHeights: DefaultLineHeights,
-cssClassName: "thonburi"
-},
-Damascus: {
-fontSizes: DefaultFontSizes,
-lineHeights: DefaultLineHeights,
-cssClassName: "damascus"
-},
-Kefa: {
-fontSizes: DefaultFontSizes,
-lineHeights: DefaultLineHeights,
-cssClassName: "kefa"
-},
-    "Arial Hebrew": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "arialhebrew"
-    },
-Mshtakan: {
-fontSizes: DefaultFontSizes,
-lineHeights: DefaultLineHeights,
-cssClassName: "mshtakan"
-},
-    "Plantagenet Cherokee": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "plantagenetcherokee"
-    },
-    "Euphemia UCAS": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "euphemiaucas"
-    },
-    "Kohinoor Bangla": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "kohinoorbangla"
-    },
-    "Bangla Sangam MN": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "banglasangammn"
-    },
-    "Gujarati Sangam MN": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "gujarati"
-    },
-    "Gurmukhi MN": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "gurmukhi"
-    },
-    "Kohinoor Devanagari": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "kohinoordevanagari"
-    },
-    "ITF Devanagari": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "itfdevanagari"
-    },
-    "Kannada Sangam MN": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "kannada"
-    },
-    "Malayalam Sangam MN": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "malayalam"
-    },
-    "Oriya Sangam MN": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "oriya"
-    },
-    "Sinhala Sangam MN": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "sinhala"
-    },
-InaiMathi: {
-fontSizes: DefaultFontSizes,
-lineHeights: DefaultLineHeights,
-cssClassName: "inaimathi"
-},
-    "Tamil Sangam MN": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "tamil"
-    },
-    "Kohinoor Telugu": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "Kohinoor Telugu"
-    },
-    "Telugu Sangam MN": {
-    fontSizes: DefaultFontSizes,
-    lineHeights: DefaultLineHeights,
-    cssClassName: "telugu"
-    }
-},
-ThemeSettings = {
+const ThemeSettings = {
 White: {
 cssClassName: "white"
 },
@@ -589,7 +559,7 @@ Yes: !0
 },
 MinTextZoomIndex = 0,
 MaxTextZoomIndex = 11,
-MaximumWidthOfImageExtendingBeyondTextContainer = 1050,
+MaximumWidthOfImageOrVideoExtendingBeyondTextContainer = 1050,
 ReaderConfigurationJavaScriptEnabledKey = "javaScriptEnabled";
 ReaderAppearanceController = function() {
     this._defaultTextSizeIndexProducer = function() {
@@ -601,8 +571,7 @@ ReaderAppearanceController = function() {
     }, this._canLayOutContentBeyondMainTextColumn = !0, this._defaultFontFamilyName = "System", this._defaultThemeName = "White", this.configuration = {}, this._textSizeIndex = null, this._fontFamilyName = this._defaultFontFamilyName, this._themeName = this._defaultThemeName
 }, ReaderAppearanceController.prototype = {
 initialize: function() {
-    this.applyConfiguration(), /Macintosh/g.test(navigator.userAgent) ? document.body.classList.add("mac") : document.body.classList.add("ios")
-},
+    this.applyConfiguration(), /Macintosh/g.test(navigator.userAgent) ? document.body.classList.add("mac") : document.body.classList.add("ios")    },
 applyConfiguration: function(e) {
     var t = this._validConfigurationAndValidityFromUntrustedConfiguration(e),
     n = t[0],
@@ -611,7 +580,7 @@ applyConfiguration: function(e) {
     textSizeIndexIsValid(a) ? this.setCurrentTextSizeIndex(a, ShouldSaveConfiguration.No) : (this.setCurrentTextSizeIndex(this._defaultTextSizeIndexProducer(), ShouldSaveConfiguration.No), i = !1);
     var o = this._locale(),
     r = n.fontFamilyNameForLanguageTag[o];
-    r && FontSettings[r] || (r = this._defaultFontFamilyNameForLanguage(o), i = !1), this.setFontFamily(r, ShouldSaveConfiguration.No), this.setTheme(n.themeName, ShouldSaveConfiguration.No), this.configuration = n, i || this._updateSavedConfiguration()
+    r && fontSettings(r) || (r = this._defaultFontFamilyNameForLanguage(o), i = !1), this.setLocale(o), this.setFontFamily(r, ShouldSaveConfiguration.No), this.setTheme(n.themeName, ShouldSaveConfiguration.No), this.configuration = n, i || this._updateSavedConfiguration()
 },
 _validConfigurationAndValidityFromUntrustedConfiguration: function(e) {
     var t = {
@@ -667,12 +636,19 @@ currentFontCSSClassName: function() {
     return this._currentFontSettings().cssClassName
 },
 _currentFontSettings: function() {
-    return FontSettings[this._fontFamilyName]
+    return fontSettings(this._fontFamilyName)
+},
+setLocale: function(e) {
+    if (e !== this._lastSetLocale) {
+        var t = document.body.classList;
+        const n = "locale-";
+        t.remove(n + this._lastSetLocale), t.add(n + e), this._lastSetLocale = e
+    }
 },
 setFontFamily: function(e, t) {
     var n = document.body,
-    i = FontSettings[e];
-    n.classList.contains(i.cssClassName) || (this._fontFamilyName && n.classList.remove(FontSettings[this._fontFamilyName].cssClassName), n.classList.add(i.cssClassName), this._fontFamilyName = e, this.layOutContent(), t === ShouldSaveConfiguration.Yes && this._updateSavedConfiguration())
+    i = fontSettings(e);
+    n.classList.contains(i.cssClassName) || (this._fontFamilyName && n.classList.remove(fontSettings(this._fontFamilyName).cssClassName), n.classList.add(i.cssClassName), this._fontFamilyName = e, this.layOutContent(), t === ShouldSaveConfiguration.Yes && this._updateSavedConfiguration())
 },
 _theme: function() {
     return ThemeSettings[this._themeName]
@@ -686,11 +662,26 @@ usesPaperAppearance: function() {
     return document.documentElement.classList.contains("paper")
 },
 layOutContent: function(e) {
-    void 0 === e && (e = ShouldRestoreReadingPosition.Yes), this._shouldUsePaperAppearance() ? document.documentElement.classList.add("paper") : document.documentElement.classList.remove("paper"), makeWideElementsScrollable(), this._canLayOutContentBeyondMainTextColumn && (this._layOutImagesBeyondTextColumn(), this._layOutElementsContainingTextBeyondTextColumn(), this._layOutVideos()), e === ShouldRestoreReadingPosition.Yes && ReadingPositionStabilizerJS.restorePosition()
+    void 0 === e && (e = ShouldRestoreReadingPosition.Yes), this._shouldUsePaperAppearance() ? document.documentElement.classList.add("paper") : document.documentElement.classList.remove("paper"), makeWideElementsScrollable(), this._canLayOutContentBeyondMainTextColumn && (this._layOutImagesAndVideoElementsBeyondTextColumn(), this._layOutElementsContainingTextBeyondTextColumn(), this._layOutVideos()), this._layOutMetadataBlock(), e === ShouldRestoreReadingPosition.Yes && ReadingPositionStabilizerJS.restorePosition()
 },
-_layOutImagesBeyondTextColumn: function() {
-    for (var e = this.canLayOutContentMaintainingAspectRatioBeyondTextColumn(), t = article.querySelectorAll("img"), n = t.length, i = 0; n > i; ++i)
-        this.setImageShouldLayOutBeyondTextColumnIfAppropriate(t[i], e)
+_layOutMetadataBlock: function() {
+    var e = document.querySelector(".metadata");
+    if (e) {
+        var t = e.querySelector(".byline"),
+        n = e.querySelector(".date");
+        if (!t || !n)
+            return void e.classList.add("singleline");
+        for (var i = t.getClientRects(), a = i.length, o = n.getClientRects(), r = o.length, s = 0, l = 0; a > l; ++l)
+            s += i[l].width;
+        for (var l = 0; r > l; ++l)
+            s += o[l].width;
+        const m = 25;
+        s + m > this._textColumnWidthInPoints() ? e.classList.remove("singleline") : e.classList.add("singleline")
+    }
+},
+_layOutImagesAndVideoElementsBeyondTextColumn: function() {
+    for (var e = this.canLayOutContentMaintainingAspectRatioBeyondTextColumn(), t = article.querySelectorAll("img, video"), n = t.length, i = 0; n > i; ++i)
+        this.setImageOrVideoShouldLayOutBeyondTextColumnIfAppropriate(t[i], e)
         },
 _layOutElementsContainingTextBeyondTextColumn: function() {
     const e = {
@@ -703,16 +694,16 @@ _layOutElementsContainingTextBeyondTextColumn: function() {
             "BLOCKQUOTE" === s.tagName && s.classList.add("simple");
         stopExtendingElementBeyondTextColumn(r);
         var l = o.scrollWidth,
-        d = this._textColumnWidthInPoints();
-        if (!(d >= l)) {
-            var c = getComputedStyle(document.querySelector(".page")),
-            u = 0;
+        m = this._textColumnWidthInPoints();
+        if (!(m >= l)) {
+            var d = getComputedStyle(document.querySelector(".page")),
+            c = 0;
             if (e[o.tagName]) {
-                var m = parseFloat(c["-webkit-padding-start"]) + parseFloat(c["-webkit-margin-start"]);
-                u = Math.min(m, t)
+                var u = parseFloat(d["-webkit-padding-start"]) + parseFloat(d["-webkit-margin-start"]);
+                c = Math.min(u, t)
             }
-            var g = Math.min(l, this._widthAvailableForLayout() - 2 * u);
-            extendElementBeyondTextColumn(r, g, d)
+            var g = Math.min(l, this._widthAvailableForLayout() - 2 * c);
+            extendElementBeyondTextColumn(r, g, m)
         }
     }
 },
@@ -721,9 +712,17 @@ _layOutVideos: function() {
         return e.src && /^(.+\.)?youtube\.com\.?$/.test(anchorForURL(e.src).hostname)
     }
     const t = 16 / 9;
-    for (var n = article.querySelectorAll("iframe"), i = n.length, a = 0; i > a; ++a) {
-        var o = n[a];
-        e(o) && (o.style.width = "100%", o.style.height = this._textColumnWidthInPoints() / t + "px")
+    for (var n, i, a = ReaderAppearanceJS.canLayOutContentMaintainingAspectRatioBeyondTextColumn(), o = article.querySelectorAll("iframe"), r = o.length, s = 0; r > s; ++s) {
+        var l = o[s];
+        if (e(l)) {
+            var m;
+            if (l.parentElement.classList.contains("iframe-wrapper") ? m = l.parentElement : (m = document.createElement("div"), m.className = "iframe-wrapper", l.nextSibling ? l.parentNode.insertBefore(m, l.nextSibling) : l.parentNode.appendChild(m), m.appendChild(l)), n || (n = Math.min(MaximumWidthOfImageOrVideoExtendingBeyondTextContainer, this._widthAvailableForLayout())), i || (i = this._textColumnWidthInPoints()), a && n > i) {
+                m.style.height = n / t + "px", extendElementBeyondTextColumn(m, n, i), l.style.height = "100%";
+                var d = this.usesPaperAppearance() ? 2 : 0;
+                l.style.width = n - d + "px"
+            } else
+                stopExtendingElementBeyondTextColumn(m), m.style.width = "100%", m.style.height = this._textColumnWidthInPoints() / t + "px"
+                }
     }
 },
 canLayOutContentMaintainingAspectRatioBeyondTextColumn: function() {
@@ -733,13 +732,13 @@ canLayOutContentMaintainingAspectRatioBeyondTextColumn: function() {
     const t = 1.25;
     return window.innerWidth / window.innerHeight <= t
 },
-setImageShouldLayOutBeyondTextColumnIfAppropriate: function(e, t) {
+setImageOrVideoShouldLayOutBeyondTextColumnIfAppropriate: function(e, t) {
     if (t && !e.closest("blockquote, table, .float")) {
         var n,
         i = this._textColumnWidthInPoints(),
         a = parseFloat(e.getAttribute("width"));
         n = isNaN(a) ? e.naturalWidth : a;
-        var o = Math.min(n, Math.min(MaximumWidthOfImageExtendingBeyondTextContainer, this._widthAvailableForLayout()));
+        var o = Math.min(n, Math.min(MaximumWidthOfImageOrVideoExtendingBeyondTextContainer, this._widthAvailableForLayout()));
         if (o > i)
             return void extendElementBeyondTextColumn(e, o, i)
             }
@@ -793,7 +792,7 @@ var lastMouseDownWasOutsideOfPaper = !1;
 ReaderController = function() {
     this.pageNumber = 1, this.pageURLs = [], this.articleIsLTR = !0, this.loadingNextPage = !1, this.loadingNextPageManuallyStopped = !1, this.cachedNextPageURL = null, this.lastKnownUserVisibleWidth = 0, this.lastKnownDocumentElementWidth = 0, this._readerWillBecomeVisible = function() {}, this._readerWillEnterBackground = function() {}, this._distanceFromBottomOfArticleToStartLoadingNextPage = function() {
         return NaN
-    }, this._shouldRestoreScrollPositionFromOriginalPageAtActivation = !1, this._clickingOutsideOfPaperRectangleDismissesReader = !1, this._shouldSkipActivationWhenPageLoads = function() {
+    }, this._clickingOutsideOfPaperRectangleDismissesReader = !1, this._shouldSkipActivationWhenPageLoads = function() {
         return !1
     }, this._shouldConvertRelativeURLsToAbsoluteURLsWhenPrintingOrMailing = !1, this._deferSendingContentIsReadyForDisplay = !1, this._isJavaScriptEnabled = function() {
         return !0
@@ -812,6 +811,7 @@ setNextPageURL: function(e) {
     this.readerOperationMode == ReaderOperationMode.OffscreenFetching ? t() : this.nextPageLoadTimer = setTimeout(t, LoadNextPageDelay)
 },
 pauseLoadingNextPage: function() {
+    this.readerOperationMode == ReaderOperationMode.Normal && (nextPageContainer().removeEventListener("load", nextPageLoadComplete, !1), this.cachedNextPageURL || (this.cachedNextPageURL = this.pageURLs.pop()), nextPageContainer().src = null, this.nextPageLoadTimer && clearTimeout(this.nextPageLoadTimer), ReaderJSController.didChangeNextPageLoadingState(!1))
 },
 stopLoadingNextPage: function() {
     nextPageContainer().removeEventListener("load", nextPageLoadComplete, !1), nextPageContainer().src = null, this.nextPageLoadTimer && clearTimeout(this.nextPageLoadTimer), this.isLoadingNextPage() && (this.setLoadingNextPage(!1), this.loadingNextPageManuallyStopped = !0)
@@ -820,9 +820,10 @@ isLoadingNextPage: function() {
     return this.loadingNextPage
 },
 setLoadingNextPage: function(e) {
-    this.loadingNextPage != e && (removeIncomingPagePlaceholder(), this.loadingNextPage = e)
+    this.loadingNextPage != e && (e ? addIncomingPagePlaceholder(ReaderJSController.canLoadFromNetwork()) : removeIncomingPagePlaceholder(), this.loadingNextPage = e, ReaderJSController.didChangeNextPageLoadingState(this.loadingNextPage))
 },
 doneLoadingAllPages: function() {
+//    ReaderJSController.doneLoadingReaderPage()
 },
 loaded: function() {
     if (!ReaderArticleFinderJS || this._shouldSkipActivationWhenPageLoads())
@@ -846,12 +847,13 @@ loaded: function() {
         this.setUserVisibleWidth(this.lastKnownUserVisibleWidth)
     }.bind(this);
     window.addEventListener("resize", o, !1);
-
     var article_node = document.getElementById("article");
-    article_node.firstChild.remove();
+//    article_node.firstChild.remove();
     
     var message = { 'code' : 0 };
     window.webkit.messageHandlers.JSController.postMessage(message);
+    
+    
 },
 setUserVisibleWidth: function(e) {
     var t = ReaderAppearanceJS.documentElementWidth();
@@ -859,7 +861,7 @@ setUserVisibleWidth: function(e) {
 },
 loadArticle: function() {
     var e = ReaderArticleFinderJS;
-    e.findArticle();
+    e.prepareToTransitionToReader();
     if (e.article || e.articleNode(!0), !e.article)
         return this.setOriginalURL(e.contentDocument.baseURI), void this.doneLoadingAllPages();
     this.routeToArticle = e.routeToArticleNode(), this.displayTitle = e.articleTitle(), this.displaySubhead = "", this.articleIsLTR = e.articleIsLTR();
@@ -875,17 +877,17 @@ loadArticle: function() {
             a[r].remove();
         this.stopLoadingNextPage()
     }
-    this.updateLocaleFromElement(n), this.createPageFromNode(n), i
+    this.updateLocaleFromElement(n), this.createPageFromNode(n), ReaderAppearanceJS.initialize(), i || (e.adoptableMultiPageContentElements().forEach(this.createPageFromNode, this), updatePageNumbers()), this.isLoadingNextPage() || this.doneLoadingAllPages()
 },
 loadNewArticle: function() {
-    if (!ReaderArticleFinderJS)
-        return null;
+    if (!ReaderJSController.originalArticleFinder())
+        return void ReaderJSController.deactivateNow();
     for (var e = document.getElementById("article"); e.childNodes.length >= 1;)
         e.removeChild(e.firstChild);
     this.reinitialize(), document.body.scrollTop = 0, this.loadArticle()
 },
 reinitialize: function() {
-    this.pageNumber = 1, this.pageURLs = [], this.articleIsLTR = !0, this.loadingNextPage = !1, this.loadingNextPageManuallyStopped = !1, this.routeToArticle = void 0, this.displayTitle = void 0, this.displaySubhead = void 0, this.originalURL = void 0, this.nextPageLoadTimer = void 0, this.cachedNextPageURL = null
+    this.pageNumber = 1, this.pageURLs = [], this.articleIsLTR = !0, this.loadingNextPage = !1, this.loadingNextPageManuallyStopped = !1, this.routeToArticle = void 0, this.displayTitle = void 0, this.displaySubhead = void 0, this.originalURL = void 0, this.nextPageLoadTimer = void 0, this.readerOperationMode = ReaderJSController.readerOperationMode(), this.cachedNextPageURL = null
 },
 createPageFromNode: function(e) {
     var t = document.createElement("div");
@@ -907,10 +909,10 @@ createPageFromNode: function(e) {
         t.appendChild(e.firstChild);
     var r = document.getElementById("article");
     r.insertBefore(t, incomingPagePlaceholder()), replaceSimpleTweetsWithRichTweets(), ReaderAppearanceJS.layOutContent(ShouldRestoreReadingPosition.No), updatePageNumbers(), restoreInitialArticleScrollPositionIfPossible();
-    for (var s = t.querySelectorAll("img"), l = s.length, d = 0; l > d; ++d)
-        s[d].onload = function(e) {
+    for (var s = t.querySelectorAll("img"), l = s.length, m = 0; l > m; ++m)
+        s[m].onload = function(e) {
             var t = e.target;
-            ReaderAppearanceJS.setImageShouldLayOutBeyondTextColumnIfAppropriate(t, ReaderAppearanceJS.canLayOutContentMaintainingAspectRatioBeyondTextColumn()), t.onload = null
+            ReaderAppearanceJS.setImageOrVideoShouldLayOutBeyondTextColumnIfAppropriate(t, ReaderAppearanceJS.canLayOutContentMaintainingAspectRatioBeyondTextColumn()), t.onload = null
         };
     this._fixImageElementsWithinPictureElements()
 },
@@ -948,14 +950,14 @@ sanitizedFullArticle: function() {
             o.test(s) || r.setAttribute("src", r.src)
         }
     }
-    for (var l = e.querySelectorAll(".extendsBeyondTextColumn"), d = l.length, n = 0; d > n; ++n)
+    for (var l = e.querySelectorAll(".extendsBeyondTextColumn"), m = l.length, n = 0; m > n; ++n)
         stopExtendingElementBeyondTextColumn(l[n]);
-    for (var c = e.querySelectorAll(".delimeter"), u = c.length, n = 0; u > n; ++n)
-        c[n].innerText = "\u2022";
+    for (var d = e.querySelectorAll(".delimeter"), c = d.length, n = 0; c > n; ++n)
+        d[n].innerText = "\u2022";
     e.classList.add(ReaderAppearanceJS.currentFontCSSClassName()), e.classList.add("exported");
-    for (var m = document.getElementById("article-content").sheet.cssRules, g = m.length, h = 0; g > h; ++h) {
-        var p = m[h].selectorText,
-        f = m[h].style;
+    for (var u = document.getElementById("article-content").sheet.cssRules, g = u.length, h = 0; g > h; ++h) {
+        var p = u[h].selectorText,
+        f = u[h].style;
         if (f) {
             var S = f.cssText;
             e.matches(p) && (e.style.cssText += S);
@@ -981,10 +983,10 @@ canLoadNextPage: function() {
     return isNaN(i) ? !0 : !(n.bottom - window.scrollY > i)
 },
 setCachedNextPageURL: function(e) {
-    e ? null : this.setNextPageURL(e)
+    e ? (this.cachedNextPageURL = e, ReaderJSController.didChangeNextPageLoadingState(!1)) : this.setNextPageURL(e)
 },
 loadNextPage: function() {
-    null != this.cachedNextPageURL && (this.setNextPageURL(this.cachedNextPageURL), this.cachedNextPageURL = null )
+    null != this.cachedNextPageURL && (this.setNextPageURL(this.cachedNextPageURL), this.cachedNextPageURL = null, ReaderJSController.didChangeNextPageLoadingState(!0))
 },
 resumeCachedNextPageLoadIfNecessary: function() {
     ReaderJS.cachedNextPageURL && ReaderJS.canLoadNextPage() && ReaderJS.loadNextPage()
@@ -1037,3 +1039,4 @@ var ContentAwareScrollerJS = new ContentAwareScroller,
 ReaderAppearanceJS = new ReaderAppearanceController,
 ReadingPositionStabilizerJS = new ReadingPositionStabilizer,
 ReaderJS = new ReaderController;
+
